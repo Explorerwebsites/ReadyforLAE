@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAE Prep Master | Mock Flashcards</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+
+        .flashcard-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flashcard-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem;
+            border-radius: 1.25rem;
+            box-shadow: 0 15px 35px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        .flashcard-back {
+            transform: rotateY(180deg);
+            background-color: #f0fdf4;
+        }
+
+        .progress-bar {
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cat-btn.active {
+            background-color: #7b1113;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(123, 17, 19, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <nav class="bg-[#7b1113] text-white p-4 shadow-xl sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-university text-2xl"></i>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight leading-none">LAE Prep Master</h1>
+                    <span class="text-[10px] uppercase opacity-80 tracking-widest">Mock Exam Mode</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="shuffleCards()" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1 rounded-md transition font-semibold">
+                    <i class="fas fa-random mr-1"></i> Shuffle
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 flex-grow">
+        
+        <!-- Category Selector -->
+        <div class="flex flex-wrap gap-2 mb-8 justify-center" id="category-filters">
+            <button onclick="filterCards('all')" class="cat-btn active px-5 py-2 rounded-full text-sm font-bold border border-transparent transition-all">All (50)</button>
+            <button onclick="filterCards('Logical')" class="cat-btn bg-white border border-gray-200 px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:border-[#7b1113] transition-all">Logical</button>
+            <button onclick="filterCards('English')" class="cat-btn bg-white border border-gray-200 px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:border-[#7b1113] transition-all">English</button>
+            <button onclick="filterCards('GK')" class="cat-btn bg-white border border-gray-200 px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:border-[#7b1113] transition-all">Gen. Knowledge</button>
+        </div>
+
+        <!-- Progress Metrics -->
+        <div class="max-w-xl mx-auto mb-6">
+            <div class="flex justify-between items-end mb-2">
+                <div>
+                    <span id="card-counter" class="text-xs text-gray-500 font-bold uppercase tracking-wider">Card 1 of 50</span>
+                </div>
+                <div class="text-right">
+                    <span id="score" class="text-sm text-[#7b1113] font-black italic">SCORE: 0%</span>
+                </div>
+            </div>
+            <div class="h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                <div id="progress" class="progress-bar h-full bg-[#7b1113]" style="width: 2%"></div>
+            </div>
+        </div>
+
+        <!-- Flashcard Area -->
+        <div class="max-w-xl mx-auto perspective-1000 relative h-96">
+            <div id="flashcard" class="flashcard-inner w-full h-full relative" onclick="toggleFlip()">
+                <div class="flashcard-front bg-white border border-gray-200">
+                    <div class="text-center w-full">
+                        <span id="card-tag" class="absolute top-6 left-6 text-[10px] font-black uppercase tracking-[0.2em] text-[#7b1113] bg-red-50 px-3 py-1 rounded-full border border-red-100">CATEGORY</span>
+                        <div class="py-10">
+                            <p id="question-text" class="text-lg md:text-xl text-gray-800 leading-snug font-semibold">Loading your path to Law School...</p>
+                        </div>
+                        <div class="absolute bottom-6 w-full left-0 flex flex-col items-center">
+                            <div class="h-[1px] w-12 bg-gray-200 mb-2"></div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest animate-pulse">Tap to see answer</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flashcard-back border border-green-200 overflow-y-auto">
+                    <div class="text-center w-full p-4 flex flex-col items-center justify-center">
+                        <div class="mb-2">
+                            <i id="back-icon" class="fas fa-check-circle text-green-500 text-2xl"></i>
+                        </div>
+                        <h4 id="back-title" class="text-green-800 font-black mb-3 uppercase text-xs tracking-widest">Analysis & Answer</h4>
+                        <p id="answer-text" class="text-base md:text-lg text-gray-700 leading-relaxed font-medium mb-6"></p>
+                        
+                        <button id="understood-btn" onclick="event.stopPropagation(); nextCard();" class="hidden bg-green-600 text-white px-6 py-2 rounded-full text-xs font-bold uppercase tracking-widest hover:bg-green-700 transition-colors">
+                            I Understood, Next Card
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="max-w-xl mx-auto mt-8 flex flex-col gap-4">
+            <div id="action-controls" class="flex justify-between items-center gap-4">
+                <button onclick="prevCard()" class="w-14 h-14 bg-white border border-gray-200 text-gray-400 hover:text-[#7b1113] hover:border-[#7b1113] rounded-2xl transition-all shadow-sm flex items-center justify-center">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                
+                <div class="flex flex-grow gap-3">
+                    <button id="incorrect-btn" onclick="markCard(false)" class="flex-1 bg-white border-2 border-red-50 text-red-500 hover:bg-red-50 py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all">
+                        Incorrect
+                    </button>
+                    <button id="correct-btn" onclick="markCard(true)" class="flex-1 bg-white border-2 border-green-50 text-green-600 hover:bg-green-50 py-4 rounded-2xl font-black uppercase text-xs tracking-widest transition-all">
+                        Correct
+                    </button>
+                </div>
+
+                <button onclick="nextCard()" class="w-14 h-14 bg-[#7b1113] text-white rounded-2xl transition-all shadow-lg shadow-red-900/20 flex items-center justify-center hover:scale-105 active:scale-95">
+                    <i class="fas fa-arrow-right text-lg"></i>
+                </button>
+            </div>
+            <p id="hint-text" class="text-center text-[10px] text-gray-400 font-bold uppercase tracking-widest">Select "Correct" or "Incorrect" to track your performance</p>
+        </div>
+
+    </main>
+
+    <script>
+        const allCards = [
+            // LOGICAL REASONING (1-17)
+            { category: 'Logical', q: "All lawyers are logic-driven. Some logic-driven people are philosophers. Does it follow that some lawyers are philosophers?", a: "No. Fallacy of the undistributed middle. The two subgroups (lawyers and philosophers) might both belong to 'logic-driven' but never actually meet each other." },
+            { category: 'Logical', q: "If P then Q. Not Q. What is the conclusion?", a: "Not P. This is Modus Tollens. Example: 'If it's a dog, it barks. It's not barking, so it's not a dog.'" },
+            { category: 'Logical', q: "No birds are mammals. Some mammals are aquatic. Conclusion: Some aquatic creatures are not birds. Is this valid?", a: "Yes. All mammals are 'not birds'. Since some aquatic creatures are mammals, those specific ones are definitely not birds." },
+            { category: 'Logical', q: "Identify the fallacy: 'Everyone is doing it, so it must be right.'", a: "Bandwagon Fallacy (Ad Populum). Popularity does not equal truth." },
+            { category: 'Logical', q: "If all A are B, and all B are C, are all A necessarily C?", a: "Yes. This is the Transitive Property of Syllogisms." },
+            { category: 'Logical', q: "A occurs before B. Therefore, A caused B. Identify the fallacy.", a: "Post Hoc Ergo Propter Hoc (False Cause). Sequence is not consequence." },
+            { category: 'Logical', q: "If it rains, the ground gets wet. The ground is wet. Therefore, it rained. Is this valid?", a: "No. (Affirming the Consequent). The ground could be wet because of a sprinkler or a spilled bucket." },
+            { category: 'Logical', q: "What is a 'Syllogism'?", a: "A form of deductive reasoning where a conclusion is reached from two related premises." },
+            { category: 'Logical', q: "Identify the fallacy: 'I can't prove ghosts don't exist, so they must exist.'", a: "Argument from Ignorance (Ad Ignorantiam). Lack of evidence is not proof of the opposite." },
+            { category: 'Logical', q: "Only students are allowed. John is allowed. Is John a student?", a: "Yes. Because 'Only students' creates a strict requirement that must be met to be 'allowed'." },
+            { category: 'Logical', q: "Either the power is out or the bulb is broken. The power is not out. Conclusion?", a: "The bulb is broken. (Disjunctive Syllogism - eliminating one of two options)." },
+            { category: 'Logical', q: "Define 'Deductive Reasoning'.", a: "Reasoning from general rules to specific, certain conclusions. (Top-down)." },
+            { category: 'Logical', q: "Define 'Inductive Reasoning'.", a: "Reasoning from specific observations to general, probable conclusions. (Bottom-up)." },
+            { category: 'Logical', q: "What is a 'Red Herring'?", a: "An irrelevant topic introduced to distract from the actual argument." },
+            { category: 'Logical', q: "Identify: 'You're either with us or against us.'", a: "False Dilemma. It ignores 'middle ground' options like being neutral." },
+            { category: 'Logical', q: "What is 'Circular Reasoning'?", a: "When the argument assumes the truth of the conclusion in the premise. (e.g. 'I'm honest because I don't lie')." },
+            { category: 'Logical', q: "What is an 'Analogy'?", a: "Comparing two different things to highlight a specific similarity for explanation." },
+
+            // ENGLISH PROFICIENCY (18-34)
+            { category: 'English', q: "Correct: 'The jury have reached a verdict.'", a: "The jury HAS reached a verdict. Collective nouns are singular if the group acts as a single unit." },
+            { category: 'English', q: "Meaning of 'Abeyance'?", a: "Temporary suspension or inactivity. Example: 'The law was held in abeyance pending review.'" },
+            { category: 'English', q: "Meaning of 'Caveat'?", a: "A warning or specific limitation. 'Caveat Emptor' means 'Let the buyer beware'." },
+            { category: 'English', q: "Meaning of 'Exacerbate'?", a: "To make a situation or feeling worse or more intense." },
+            { category: 'English', q: "Synonym for 'Pragmatic'?", a: "Practical, realistic, or grounded in sensible action." },
+            { category: 'English', q: "Synonym for 'Equivocal'?", a: "Ambiguous or intentionally vague; using 'double-talk'." },
+            { category: 'English', q: "Choose: 'He is the (taller / tallest) of the two brothers.'", a: "Taller. Use comparative (-er) for 2 items and superlative (-est) for 3+ items." },
+            { category: 'English', q: "Identify: 'The principle/principal of the school.'", a: "Principal (the person). A 'Principle' is a rule or fundamental truth." },
+            { category: 'English', q: "Meaning of 'In lieu of'?", a: "Instead of. Example: 'He took the day off in lieu of overtime pay.'" },
+            { category: 'English', q: "Meaning of 'Pro bono'?", a: "Work done for free for the public good (common in law)." },
+            { category: 'English', q: "Identify error: 'Neither of the options look correct.'", a: "Should be 'looks'. 'Neither' is a singular subject." },
+            { category: 'English', q: "Meaning of 'Amicable'?", a: "Friendly and without disagreement." },
+            { category: 'English', q: "What is an 'Oxymoron'?", a: "A phrase with two opposite words working together, like 'Original Copy'." },
+            { category: 'English', q: "Define 'Laconic'.", a: "Using very few words; brief and to the point." },
+            { category: 'English', q: "Antonym of 'Benevolent'?", a: "Malevolent (wishing evil on others)." },
+            { category: 'English', q: "Correct: 'Its a long way to the top.'", a: "It's (It is). 'Its' is possessive, like 'His' or 'Hers'." },
+            { category: 'English', q: "Define 'Ephemeral'.", a: "Lasting for a very short time; fleeting." },
+
+            // GENERAL KNOWLEDGE (35-50)
+            { category: 'GK', q: "Who wrote the 1987 Philippine Constitution?", a: "The 1986 Constitutional Commission (ConCom) appointed by Pres. Cory Aquino." },
+            { category: 'GK', q: "Term length of a Philippine Senator?", a: "6 years per term (maximum of 2 consecutive terms)." },
+            { category: 'GK', q: "Who is the 'Father of the Philippine Constitution'?", a: "Claro M. Recto (referring to the 1935 draft) or Cecilia Muñoz-Palma (1987 head)." },
+            { category: 'GK', q: "What is the 'Rule of Law'?", a: "The concept that no one is above the law and it applies to everyone equally." },
+            { category: 'GK', q: "Who has the power to declare the existence of a state of war?", a: "The Congress (two-thirds vote in joint session)." },
+            { category: 'GK', q: "What is 'Double Jeopardy'?", a: "A legal rule preventing someone from being tried for the same crime twice after an acquittal." },
+            { category: 'GK', q: "What is the 'Miranda Warning'?", a: "A right protecting people during investigation: 'You have the right to remain silent...'" },
+            { category: 'GK', q: "Who is the primary advisor of the President on legal matters?", a: "The Solicitor General (representing the gov) or Secretary of Justice." },
+            { category: 'GK', q: "Which body has the power of the purse?", a: "The Legislative Branch (Congress), specifically the House of Reps for money bills." },
+            { category: 'GK', q: "What is the 'Social Justice' clause?", a: "Duty of the state to promote welfare and reduce economic inequality." },
+            { category: 'GK', q: "Define 'Stare Decisis'.", a: "The legal principle of following 'precedent' (ruling as previous cases were ruled)." },
+            { category: 'GK', q: "Who are the 'Triumvirate' of the Propaganda Movement?", a: "Jose Rizal, M.H. del Pilar, and Graciano Lopez Jaena." },
+            { category: 'GK', q: "What is the age requirement for a Supreme Court Justice?", a: "At least 40 years old." },
+            { category: 'GK', q: "What is 'Eminent Domain'?", a: "State power to take private land for public use, provided they pay 'just compensation'." },
+            { category: 'GK', q: "What is the official name of the Philippine Legislature?", a: "Congress of the Philippines." },
+            { category: 'GK', q: "When was the 1987 Constitution ratified?", a: "February 2, 1987." }
+        ];
+
+        let filteredCards = [...allCards];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let totalAttempted = 0;
+        let isFlipped = false;
+
+        function toggleFlip() {
+            const flashcard = document.getElementById('flashcard');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                flashcard.classList.add('is-flipped');
+            } else {
+                flashcard.classList.remove('is-flipped');
+            }
+        }
+
+        function updateUI() {
+            const card = filteredCards[currentIndex];
+            const flashcard = document.getElementById('flashcard');
+            
+            // Reset state
+            isFlipped = false;
+            flashcard.classList.remove('is-flipped');
+            document.getElementById('understood-btn').classList.add('hidden');
+            document.getElementById('back-title').innerText = "Analysis & Answer";
+            document.getElementById('back-icon').className = "fas fa-lightbulb text-yellow-500 text-2xl";
+            
+            setTimeout(() => {
+                document.getElementById('question-text').innerText = card.q;
+                document.getElementById('answer-text').innerText = card.a;
+                document.getElementById('card-tag').innerText = card.category;
+                document.getElementById('card-counter').innerText = `Card ${currentIndex + 1} of ${filteredCards.length}`;
+                
+                const progressPercent = ((currentIndex + 1) / filteredCards.length) * 100;
+                document.getElementById('progress').style.width = `${progressPercent}%`;
+                
+                const scorePercent = totalAttempted === 0 ? 0 : Math.round((correctCount / totalAttempted) * 100);
+                document.getElementById('score').innerText = `SCORE: ${scorePercent}%`;
+            }, 150);
+        }
+
+        function nextCard() {
+            if (currentIndex < filteredCards.length - 1) {
+                currentIndex++;
+                updateUI();
+            } else {
+                alert("Study session complete! Click OK to restart.");
+                currentIndex = 0;
+                updateUI();
+            }
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateUI();
+            }
+        }
+
+        function markCard(isCorrect) {
+            totalAttempted++;
+            if (isCorrect) {
+                correctCount++;
+                // If correct, just move on
+                nextCard();
+            } else {
+                // If incorrect, show explanation
+                showExplanation();
+            }
+        }
+
+        function showExplanation() {
+            const flashcard = document.getElementById('flashcard');
+            isFlipped = true;
+            flashcard.classList.add('is-flipped');
+            
+            // Highlight that this is the review
+            document.getElementById('back-title').innerText = "Review Needed";
+            document.getElementById('back-icon').className = "fas fa-exclamation-circle text-red-500 text-2xl";
+            document.getElementById('understood-btn').classList.remove('hidden');
+        }
+
+        function filterCards(cat) {
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            filteredCards = cat === 'all' ? [...allCards] : allCards.filter(c => c.category === cat);
+            currentIndex = 0;
+            updateUI();
+        }
+
+        function shuffleCards() {
+            for (let i = filteredCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [filteredCards[i], filteredCards[j]] = [filteredCards[j], filteredCards[i]];
+            }
+            currentIndex = 0;
+            updateUI();
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
