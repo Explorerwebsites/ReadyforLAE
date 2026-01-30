@@ -82,7 +82,7 @@
         
         <!-- Category Selector -->
         <div class="flex flex-wrap gap-2 mb-8 justify-center" id="category-filters">
-            <button onclick="filterCards('all')" class="cat-btn active px-5 py-2 rounded-full text-sm font-bold border border-transparent transition-all">All (50)</button>
+            <button id="btn-all" onclick="filterCards('all')" class="cat-btn active px-5 py-2 rounded-full text-sm font-bold border border-transparent transition-all">All</button>
             <button onclick="filterCards('Logical')" class="cat-btn bg-white border border-gray-200 px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:border-[#7b1113] transition-all">Logical</button>
             <button onclick="filterCards('English')" class="cat-btn bg-white border border-gray-200 px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:border-[#7b1113] transition-all">English</button>
             <button onclick="filterCards('GK')" class="cat-btn bg-white border border-gray-200 px-5 py-2 rounded-full text-sm font-bold text-gray-600 hover:border-[#7b1113] transition-all">Gen. Knowledge</button>
@@ -161,7 +161,7 @@
 
     <script>
         const allCards = [
-            // LOGICAL REASONING (1-17)
+            // LOGICAL REASONING
             { category: 'Logical', q: "All lawyers are logic-driven. Some logic-driven people are philosophers. Does it follow that some lawyers are philosophers?", a: "No. Fallacy of the undistributed middle. The two subgroups (lawyers and philosophers) might both belong to 'logic-driven' but never actually meet each other." },
             { category: 'Logical', q: "If P then Q. Not Q. What is the conclusion?", a: "Not P. This is Modus Tollens. Example: 'If it's a dog, it barks. It's not barking, so it's not a dog.'" },
             { category: 'Logical', q: "No birds are mammals. Some mammals are aquatic. Conclusion: Some aquatic creatures are not birds. Is this valid?", a: "Yes. All mammals are 'not birds'. Since some aquatic creatures are mammals, those specific ones are definitely not birds." },
@@ -173,14 +173,15 @@
             { category: 'Logical', q: "Identify the fallacy: 'I can't prove ghosts don't exist, so they must exist.'", a: "Argument from Ignorance (Ad Ignorantiam). Lack of evidence is not proof of the opposite." },
             { category: 'Logical', q: "Only students are allowed. John is allowed. Is John a student?", a: "Yes. Because 'Only students' creates a strict requirement that must be met to be 'allowed'." },
             { category: 'Logical', q: "Either the power is out or the bulb is broken. The power is not out. Conclusion?", a: "The bulb is broken. (Disjunctive Syllogism - eliminating one of two options)." },
-            { category: 'Logical', q: "Define 'Deductive Reasoning'.", a: "Reasoning from general rules to specific, certain conclusions. (Top-down)." },
-            { category: 'Logical', q: "Define 'Inductive Reasoning'.", a: "Reasoning from specific observations to general, probable conclusions. (Bottom-up)." },
-            { category: 'Logical', q: "What is a 'Red Herring'?", a: "An irrelevant topic introduced to distract from the actual argument." },
-            { category: 'Logical', q: "Identify: 'You're either with us or against us.'", a: "False Dilemma. It ignores 'middle ground' options like being neutral." },
-            { category: 'Logical', q: "What is 'Circular Reasoning'?", a: "When the argument assumes the truth of the conclusion in the premise. (e.g. 'I'm honest because I don't lie')." },
-            { category: 'Logical', q: "What is an 'Analogy'?", a: "Comparing two different things to highlight a specific similarity for explanation." },
+            { category: 'Logical', q: "Identify the fallacy: 'Senator X says we should fix the roads, but he's a known liar, so we should ignore his plan.'", a: "Ad Hominem (Attacking the person instead of the argument)." },
+            { category: 'Logical', q: "What is the 'Straw Man' fallacy?", a: "Distorting or oversimplifying an opponent's argument to make it easier to attack." },
+            { category: 'Logical', q: "If P implies Q, does Q necessarily imply P?", a: "No. This is 'Converse' and is not necessarily true. If it rains, the grass is wet; but if the grass is wet, it didn't necessarily rain." },
+            { category: 'Logical', q: "What is a 'Non-Sequitur'?", a: "A conclusion or statement that does not logically follow from the previous argument or statement." },
+            { category: 'Logical', q: "Identify the fallacy: 'My grandfather smoked every day and lived to 100, so smoking isn't bad for you.'", a: "Hasty Generalization / Anecdotal Evidence. One specific case doesn't represent the general reality." },
+            { category: 'Logical', q: "Define 'Premise'.", a: "A previous statement or proposition from which another is inferred or follows as a conclusion." },
+            { category: 'Logical', q: "What is the 'Slippery Slope' fallacy?", a: "Arguing that a small first step will inevitably lead to a chain of related (and usually negative) events." },
 
-            // ENGLISH PROFICIENCY (18-34)
+            // ENGLISH PROFICIENCY
             { category: 'English', q: "Correct: 'The jury have reached a verdict.'", a: "The jury HAS reached a verdict. Collective nouns are singular if the group acts as a single unit." },
             { category: 'English', q: "Meaning of 'Abeyance'?", a: "Temporary suspension or inactivity. Example: 'The law was held in abeyance pending review.'" },
             { category: 'English', q: "Meaning of 'Caveat'?", a: "A warning or specific limitation. 'Caveat Emptor' means 'Let the buyer beware'." },
@@ -192,14 +193,16 @@
             { category: 'English', q: "Meaning of 'In lieu of'?", a: "Instead of. Example: 'He took the day off in lieu of overtime pay.'" },
             { category: 'English', q: "Meaning of 'Pro bono'?", a: "Work done for free for the public good (common in law)." },
             { category: 'English', q: "Identify error: 'Neither of the options look correct.'", a: "Should be 'looks'. 'Neither' is a singular subject." },
-            { category: 'English', q: "Meaning of 'Amicable'?", a: "Friendly and without disagreement." },
-            { category: 'English', q: "What is an 'Oxymoron'?", a: "A phrase with two opposite words working together, like 'Original Copy'." },
-            { category: 'English', q: "Define 'Laconic'.", a: "Using very few words; brief and to the point." },
-            { category: 'English', q: "Antonym of 'Benevolent'?", a: "Malevolent (wishing evil on others)." },
-            { category: 'English', q: "Correct: 'Its a long way to the top.'", a: "It's (It is). 'Its' is possessive, like 'His' or 'Hers'." },
-            { category: 'English', q: "Define 'Ephemeral'.", a: "Lasting for a very short time; fleeting." },
+            { category: 'English', q: "Define 'Obsequious'.", a: "Obedient or attentive to an excessive or servile degree." },
+            { category: 'English', q: "What is an 'Antecedent'?", a: "The noun that a pronoun refers back to." },
+            { category: 'English', q: "Difference between 'Affect' and 'Effect'?", a: "Affect is usually a verb (to influence). Effect is usually a noun (the result)." },
+            { category: 'English', q: "Meaning of 'Plausible Deniability'?", a: "A situation where a person can avoid responsibility for a task by claiming they didn't know about it." },
+            { category: 'English', q: "Synonym for 'Mitigate'?", a: "To make less severe, serious, or painful." },
+            { category: 'English', q: "What does 'Quid Pro Quo' mean?", a: "A favor or advantage granted or expected in return for something." },
+            { category: 'English', q: "Meaning of 'Venerable'?", a: "Accorded a great deal of respect, especially because of age, wisdom, or character." },
+            { category: 'English', q: "Define 'Capricious'.", a: "Given to sudden and unaccountable changes of mood or behavior." },
 
-            // GENERAL KNOWLEDGE (35-50)
+            // GENERAL KNOWLEDGE
             { category: 'GK', q: "Who wrote the 1987 Philippine Constitution?", a: "The 1986 Constitutional Commission (ConCom) appointed by Pres. Cory Aquino." },
             { category: 'GK', q: "Term length of a Philippine Senator?", a: "6 years per term (maximum of 2 consecutive terms)." },
             { category: 'GK', q: "Who is the 'Father of the Philippine Constitution'?", a: "Claro M. Recto (referring to the 1935 draft) or Cecilia Muñoz-Palma (1987 head)." },
@@ -210,12 +213,16 @@
             { category: 'GK', q: "Who is the primary advisor of the President on legal matters?", a: "The Solicitor General (representing the gov) or Secretary of Justice." },
             { category: 'GK', q: "Which body has the power of the purse?", a: "The Legislative Branch (Congress), specifically the House of Reps for money bills." },
             { category: 'GK', q: "What is the 'Social Justice' clause?", a: "Duty of the state to promote welfare and reduce economic inequality." },
-            { category: 'GK', q: "Define 'Stare Decisis'.", a: "The legal principle of following 'precedent' (ruling as previous cases were ruled)." },
-            { category: 'GK', q: "Who are the 'Triumvirate' of the Propaganda Movement?", a: "Jose Rizal, M.H. del Pilar, and Graciano Lopez Jaena." },
-            { category: 'GK', q: "What is the age requirement for a Supreme Court Justice?", a: "At least 40 years old." },
-            { category: 'GK', q: "What is 'Eminent Domain'?", a: "State power to take private land for public use, provided they pay 'just compensation'." },
-            { category: 'GK', q: "What is the official name of the Philippine Legislature?", a: "Congress of the Philippines." },
-            { category: 'GK', q: "When was the 1987 Constitution ratified?", a: "February 2, 1987." }
+            { category: 'GK', q: "What are the three branches of the Philippine Government?", a: "Executive, Legislative, and Judicial." },
+            { category: 'GK', q: "How many members are in the Supreme Court of the Philippines?", a: "15 (1 Chief Justice and 14 Associate Justices)." },
+            { category: 'GK', q: "What is the 'Writ of Habeas Corpus'?", a: "A legal action that requires a person under arrest to be brought before a judge or into court." },
+            { category: 'GK', q: "Who is the Commander-in-Chief of all armed forces of the Philippines?", a: "The President." },
+            { category: 'GK', q: "What is 'Jurisdiction'?", a: "The official power to make legal decisions and judgments over a certain area or topic." },
+            { category: 'GK', q: "What is the 'Bill of Rights'?", a: "Article III of the Constitution, which lists the fundamental rights and freedoms of citizens." },
+            { category: 'GK', q: "Define 'Sovereignty'.", a: "The supreme power or authority of a state to govern itself." },
+            { category: 'GK', q: "Who can initiate impeachment cases?", a: "The House of Representatives." },
+            { category: 'GK', q: "Who tries and decides impeachment cases?", a: "The Senate." },
+            { category: 'GK', q: "What is the minimum age to be President of the Philippines?", a: "40 years old on the day of the election." }
         ];
 
         let filteredCards = [...allCards];
@@ -245,6 +252,7 @@
             document.getElementById('back-title').innerText = "Analysis & Answer";
             document.getElementById('back-icon').className = "fas fa-lightbulb text-yellow-500 text-2xl";
             
+            // Wait for flip animation before swapping text
             setTimeout(() => {
                 document.getElementById('question-text').innerText = card.q;
                 document.getElementById('answer-text').innerText = card.a;
@@ -281,10 +289,8 @@
             totalAttempted++;
             if (isCorrect) {
                 correctCount++;
-                // If correct, just move on
                 nextCard();
             } else {
-                // If incorrect, show explanation
                 showExplanation();
             }
         }
@@ -294,7 +300,6 @@
             isFlipped = true;
             flashcard.classList.add('is-flipped');
             
-            // Highlight that this is the review
             document.getElementById('back-title').innerText = "Review Needed";
             document.getElementById('back-icon').className = "fas fa-exclamation-circle text-red-500 text-2xl";
             document.getElementById('understood-btn').classList.remove('hidden');
@@ -302,7 +307,9 @@
 
         function filterCards(cat) {
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            const target = event ? event.target : document.getElementById('btn-all');
+            target.classList.add('active');
+            
             filteredCards = cat === 'all' ? [...allCards] : allCards.filter(c => c.category === cat);
             currentIndex = 0;
             updateUI();
@@ -317,6 +324,7 @@
             updateUI();
         }
 
+        // Initialize UI
         updateUI();
     </script>
 </body>
